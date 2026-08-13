@@ -2,9 +2,14 @@ import "dotenv/config";
 import express from "express";
 import { prisma } from "./lib/db.js";
 import { redis } from "./lib/redis.js";
+import { authRouter } from "./routes/auth.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
+
+app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (_req, res) => {
   res.json({ service: "api", status: "ok" });
@@ -30,6 +35,8 @@ app.get("/health", async (_req, res) => {
   const healthy = checks.db && checks.redis;
   res.status(healthy ? 200 : 503).json(checks);
 });
+
+app.use("/auth", authRouter);
 
 async function start() {
   try {
