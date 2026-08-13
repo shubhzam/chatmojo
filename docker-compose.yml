@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: webchat-postgres
+    environment:
+      POSTGRES_USER: webchat
+      POSTGRES_PASSWORD: webchat_dev_password
+      POSTGRES_DB: webchat
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webchat -d webchat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8
+    container_name: webchat-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+  redis-data:
