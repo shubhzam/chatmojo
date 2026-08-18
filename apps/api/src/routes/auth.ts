@@ -8,6 +8,7 @@ import { signAccessToken } from "../lib/jwt.js";
 import { RateLimiterRes } from "rate-limiter-flexible";
 import { loginRateLimiter } from "../lib/rateLimiter.js";
 import { registerSchema, loginSchema } from "@repo/shared/auth";
+import { requireAuth } from "../middleware/auth.js";
 
 export const authRouter = Router();
 
@@ -117,4 +118,12 @@ authRouter.post("/logout", async (req, res) => {
   }
   clearAuthCookies(res);
   res.status(200).json({ ok: true });
+});
+
+authRouter.get("/me", requireAuth, async (req, res) => {
+  const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
+  if (!user) {
+    return res.status(401).json({ error: "unauthorized" });
+  }
+  res.json({ id: user.id, email: user.email, displayName: user.displayName });
 });

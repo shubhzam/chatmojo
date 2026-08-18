@@ -1,6 +1,7 @@
 import "dotenv/config";
 import http from "node:http";
 import express from "express";
+import cors from "cors";
 import { prisma } from "./lib/db.js";
 import { redis } from "./lib/redis.js";
 import { authRouter } from "./routes/auth.js";
@@ -13,6 +14,7 @@ import { attachWebSocketServer } from "./ws/server.js";
 const app = express();
 const PORT = process.env.PORT ?? 4000;
 
+app.use(cors({ origin: process.env.FRONTEND_URL ?? "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(conversationsRouter);
