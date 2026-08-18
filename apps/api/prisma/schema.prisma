@@ -22,6 +22,9 @@ model User {
   sentMessages         Message[]
   conversationsAsUserA Conversation[] @relation("ConversationUserA")
   conversationsAsUserB Conversation[] @relation("ConversationUserB")
+  groupsCreated    GroupConversation[] @relation("GroupsCreated")
+  groupMemberships GroupMembership[]
+  groupMessages    GroupMessage[]
 }
 
 model Conversation {
@@ -49,4 +52,40 @@ model Message {
   sender       User         @relation(fields: [senderId], references: [id])
 
   @@index([conversationId, id])
+}
+
+model GroupConversation {
+  id            String   @id @default(uuid(7))
+  name          String
+  createdBy     String
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  creator     User               @relation("GroupsCreated", fields: [createdBy], references: [id])
+  memberships GroupMembership[]
+  messages    GroupMessage[]
+}
+
+model GroupMembership {
+  userId              String
+  groupConversationId String
+  joinedAt            DateTime @default(now())
+
+  user  User              @relation(fields: [userId], references: [id])
+  group GroupConversation @relation(fields: [groupConversationId], references: [id])
+
+  @@id([userId, groupConversationId])
+}
+
+model GroupMessage {
+  id                  String   @id @default(uuid(7))
+  groupConversationId String
+  senderId            String
+  content             String
+  createdAt           DateTime @default(now())
+
+  group  GroupConversation @relation(fields: [groupConversationId], references: [id])
+  sender User              @relation(fields: [senderId], references: [id])
+
+  @@index([groupConversationId, id])
 }

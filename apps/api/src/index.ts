@@ -4,6 +4,7 @@ import { prisma } from "./lib/db.js";
 import { redis } from "./lib/redis.js";
 import { authRouter } from "./routes/auth.js";
 import { conversationsRouter } from "./routes/conversations.js";
+import { groupsRouter } from "./routes/groups.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -12,6 +13,7 @@ const PORT = process.env.PORT ?? 4000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(conversationsRouter);
+app.use(groupsRouter);
 
 app.get("/", (_req, res) => {
   res.json({ service: "api", status: "ok" });

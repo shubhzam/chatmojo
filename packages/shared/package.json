@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     "./auth": "./src/auth.ts",
-    "./messaging": "./src/messaging.ts"
+    "./messaging": "./src/messaging.ts",
+  "./groupchat": "./src/groupchat.ts"
   },
   "dependencies": {
     "zod": "^4.4.3"
