@@ -2,6 +2,8 @@ import { Router } from "express";
 import { prisma } from "../lib/db.js";
 import { requireAuth } from "../middleware/auth.js";
 import { sendMessageSchema, listMessagesQuerySchema } from "@repo/shared/messaging";
+import { pushToUser } from "../lib/wsRegistry.js";
+
 export const conversationsRouter = Router();
 
 async function findOrCreateConversation(userId1: string, userId2: string) {
@@ -57,6 +59,17 @@ conversationsRouter.post("/messages", requireAuth, async (req, res) => {
       data: { lastMessageAt: new Date() },
     });
     return created;
+  });
+
+  pushToUser(recipientId, {
+    type: "message",
+    data: {
+      id: message.id,
+      conversationId: message.conversationId,
+      senderId: message.senderId,
+      content: message.content,
+      createdAt: message.createdAt,
+    },
   });
 
   res.status(201).json({

@@ -1,4 +1,5 @@
 import "dotenv/config";
+import http from "node:http";
 import express from "express";
 import { prisma } from "./lib/db.js";
 import { redis } from "./lib/redis.js";
@@ -6,6 +7,8 @@ import { authRouter } from "./routes/auth.js";
 import { conversationsRouter } from "./routes/conversations.js";
 import { groupsRouter } from "./routes/groups.js";
 import cookieParser from "cookie-parser";
+import { attachWebSocketServer } from "./ws/server.js";
+
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -49,7 +52,10 @@ async function start() {
     console.error("initial redis connect failed, /health will report it as down:", err);
   }
 
-  app.listen(PORT, () => {
+  const server = http.createServer(app);
+  attachWebSocketServer(server);
+
+  server.listen(PORT, () => {
     console.log(`api listening on port ${PORT}`);
   });
 }
