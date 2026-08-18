@@ -75,6 +75,7 @@ model GroupMembership {
   group GroupConversation @relation(fields: [groupConversationId], references: [id])
 
   @@id([userId, groupConversationId])
+  @@index([groupConversationId])
 }
 
 model GroupMessage {

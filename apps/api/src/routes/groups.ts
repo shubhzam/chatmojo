@@ -3,6 +3,7 @@ import { prisma } from "../lib/db.js";
 import { requireAuth } from "../middleware/auth.js";
 import { createGroupSchema, addMemberSchema, sendGroupMessageSchema } from "@repo/shared/groupchat";
 import { listMessagesQuerySchema } from "@repo/shared/messaging";
+import { pushToUser } from "../lib/wsRegistry.js";
 
 export const groupsRouter = Router();
 
@@ -140,6 +141,23 @@ groupsRouter.post("/groups/:groupId/messages", requireAuth, async (req, res) => 
     return created;
   });
 
+  const otherMembers = await prisma.groupMembership.findMany({
+    where: { groupConversationId: groupId, userId: { not: senderId } },
+    select: { userId: true },
+  });
+  for (const member of otherMembers) {
+    pushToUser(member.userId, {
+      type: "group_message",
+      data: {
+        id: message.id,
+        groupConversationId: message.groupConversationId,
+        senderId: message.senderId,
+        content: message.content,
+        createdAt: message.createdAt,
+      },
+    });
+  }
+
   res.status(201).json({
     id: message.id,
     groupConversationId: message.groupConversationId,
@@ -221,7 +239,7 @@ groupsRouter.get("/groups/:groupId/members", requireAuth, async (req, res) => {
   });
   if (!requesterMembership) {
     return res.status(404).json({ error: "group not found" });
-  }
+  }``
 
   const memberships = await prisma.groupMembership.findMany({
     where: { groupConversationId: groupId },

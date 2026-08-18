@@ -17,7 +17,14 @@ async function login(email: string, password: string): Promise<string> {
 }
 
 async function main() {
-  const cookie = await login("harshada@example.com", "TestPass123!");
+  const email = process.argv[2];
+  const password = process.argv[3];
+  if (!email || !password) {
+    console.error("usage: tsx listen-ws.ts <email> <password>");
+    process.exit(1);
+  }
+
+  const cookie = await login(email, password);
   const ws = new WebSocket(WS_URL, { headers: { Cookie: cookie } });
 
   ws.on("open", () => {
