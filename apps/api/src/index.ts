@@ -7,6 +7,7 @@ import { redis } from "./lib/redis.js";
 import { authRouter } from "./routes/auth.js";
 import { conversationsRouter } from "./routes/conversations.js";
 import { groupsRouter } from "./routes/groups.js";
+import { usersRouter } from "./routes/users.js";
 import cookieParser from "cookie-parser";
 import { attachWebSocketServer } from "./ws/server.js";
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(conversationsRouter);
 app.use(groupsRouter);
+app.use(usersRouter);
 
 app.get("/", (_req, res) => {
   res.json({ service: "api", status: "ok" });
